@@ -37,17 +37,19 @@ listsRouter.post("/",
 
 listsRouter.put("/:id",
   (req, res, next) => {
-    let list = Object.assign(emptyList, req.body.list);
-    db.lists.update({_id: req.params.id}, list, {}, (err, num, doc)=>{
-      if(err !== null) {
-        res.status(422).json({list: list, errors: [err]});
-      }
-      else {
-        db.lists.find({_id: req.params.id}, (err, docs) => {
-          res.json({list: docs ? docs[0] : {}});
-        });
-      }
-    })
+    db.lists.find({_id: req.params.id}, (err, docs) => {
+      let list = Object.assign(docs[0]||emptyList, req.body.list);
+      db.lists.update({_id: req.params.id}, list, {}, (err, num, doc)=>{
+        if(err !== null) {
+          res.status(422).json({list: list, errors: [err]});
+        }
+        else {
+          db.lists.find({_id: req.params.id}, (err, docs) => {
+            res.json({list: docs ? docs[0] : {}});
+          });
+        }
+      })
+    });
   }
 )
 

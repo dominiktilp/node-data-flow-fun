@@ -35,18 +35,20 @@ usersRouter.post("/",
 
 usersRouter.put("/:id",
   (req, res, next) => {
-    let user = Object.assign({name: ""}, req.body.user);
-    db.users.update({_id: req.params.id}, user, {}, (err, num, doc)=>{
-      console.log(num);
-      if(err !== null) {
-        res.status(422).json({user: user, errors: [err]});
-      }
-      else {
-        db.users.find({_id: req.params.id}, (err, docs) => {
-          res.json({user: docs ? docs[0] : {}});
-        });
-      }
-    })
+    db.users.find({_id: req.params.id}, (err, docs) => {
+      let user = Object.assign(docs[0]||{}, req.body.user);
+      db.users.update({_id: req.params.id}, user, {}, (err, num, doc)=>{
+        console.log(num);
+        if(err !== null) {
+          res.status(422).json({user: user, errors: [err]});
+        }
+        else {
+          db.users.find({_id: req.params.id}, (err, docs) => {
+            res.json({user: docs ? docs[0] : {}});
+          });
+        }
+      })
+    });
   }
 )
 
